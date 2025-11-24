@@ -1,0 +1,13 @@
+{
+  "envelope": {
+    "body": { "hello": "world" },
+    "sigs": []
+  },
+  "policy": {
+    "require_pqc": false,
+    "require_qkd_mac": false,
+    "allow_ed25519": true,
+    "min_valid_signatures": 0
+  }
+}
+

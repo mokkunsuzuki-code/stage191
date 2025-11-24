@@ -1,0 +1,11 @@
+{
+  "data": {
+    "type": "ROTATE_DATA_DEK",
+    "reason": "periodic",
+    "ts": 1760915971,
+    "req_id": "demo-req-001"
+  },
+  "alg": "ed25519",
+  "pub_pem_b64": "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUNvd0JRWURLMlZ3QXlFQTZMai9Fb3FaK1FxbW9wN0NFeENTWUZORGFSYmZ1Mjc4K1hCNGpPS3hhMms9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=",
+  "sig_b64": "VS9XYg9IhgXSa/9NanIqf0HH8CyXpm1l7bjedPeW3XwQY/ZqA/1fM5wkL6G+OxUX2UzlzSGfaU6LDZaTzgeVDw=="
+}

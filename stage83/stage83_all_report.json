@@ -1,0 +1,51 @@
+{
+  "stage81": {
+    "n_sent": 20000,
+    "eve_rate": 0.05,
+    "noise": 0.005,
+    "sifted_len": 10014,
+    "sample_size": 2003,
+    "qber_estimate": 0.013979031452820768,
+    "threshold": 0.11,
+    "accepted": true,
+    "pre_key_len_bits": 8011,
+    "residual_bit_errors": 140
+  },
+  "stage82": {
+    "initial_hamming": 140,
+    "final_hamming": 0,
+    "total_fixed": 140,
+    "total_leak_bits": 1756,
+    "history": [
+      {
+        "pass": 1,
+        "block_len": 50,
+        "fixed": 64,
+        "leak_bits": 479,
+        "remaining_errors": 76
+      },
+      {
+        "pass": 2,
+        "block_len": 25,
+        "fixed": 60,
+        "leak_bits": 561,
+        "remaining_errors": 16
+      },
+      {
+        "pass": 3,
+        "block_len": 12,
+        "fixed": 16,
+        "leak_bits": 716,
+        "remaining_errors": 0
+      }
+    ]
+  },
+  "stage83": {
+    "input_len_bits": 8011,
+    "leak_bits": 1756,
+    "lambda": 64,
+    "output_len_bits": 6127,
+    "final_key_sha256_hex": "13ddd83b13d99200819d893cb6ab2083b529424fbada6e28719cd50467d559a1",
+    "pa_seed_len_bits": 14137
+  }
+}

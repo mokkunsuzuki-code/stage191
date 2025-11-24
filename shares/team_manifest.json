@@ -1,0 +1,14 @@
+{
+  "n": 2,
+  "k": 2,
+  "members": [
+    "Alice",
+    "Bob"
+  ],
+  "share_files": [
+    "share_Alice.json",
+    "share_Bob.json"
+  ],
+  "mk_len": 32,
+  "note": "Shamir secret sharing over prime field"
+}

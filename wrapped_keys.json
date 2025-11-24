@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "counter": 3,
+  "scrypt": {
+    "n": 32768,
+    "r": 8,
+    "p": 1
+  },
+  "salt": "V1J0jt2PYewoWVq/wosIAg==",
+  "data": {
+    "nonce": "0IjBukPVmupCMB1+",
+    "ct": "gsC8s1RJhaD6xivp2nn0yd73FIz8Xq245AiaeGC+DX2xonhxRgU0qnNcU7oX6IrN"
+  },
+  "audit": {
+    "nonce": "tYH8tAerfDLIAWr1",
+    "ct": "2GLwURxDyeF4dLmZ1vyTcKC4Pa6wPOg9qlhRRkJ77+WdlNlMWt4kH9pecnMxKf2u"
+  }
+}

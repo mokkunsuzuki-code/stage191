@@ -1,0 +1,13 @@
+{
+  "n_sent": 20000,
+  "eve_rate": 0.05,
+  "channel_noise": 0.01,
+  "sample_frac": 0.2,
+  "sifted_len": 10014,
+  "sample_size": 2003,
+  "qber_estimate": 0.017473789316025962,
+  "threshold": 0.11,
+  "accepted": true,
+  "key_len_bits": 8011,
+  "residual_bit_errors": 179
+}

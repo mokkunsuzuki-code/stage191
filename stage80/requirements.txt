@@ -1,0 +1,2 @@
+aioquic==0.9.25
+cryptography>=42.0.0
