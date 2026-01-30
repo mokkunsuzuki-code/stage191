@@ -20,7 +20,7 @@ services:
     image: docker-qsp:latest
     working_dir: /app
     entrypoint: ["bash", "-lc"]
-    command: ["bash scripts/02_run_demo.sh"]
+    command: ["python -u protocol/stage167_demo_runner.py"]
     volumes:
       - ../out:/app/out
     environment:
@@ -83,6 +83,34 @@ services:
       - PYTHONUNBUFFERED=1
       - GIT_COMMIT=${GIT_COMMIT:-N/A}
 
+  attack-05:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: docker-qsp:latest
+    working_dir: /app
+    entrypoint: ["bash", "-lc"]
+    command: ["bash attack_scenarios/attack_05_key_schedule_confusion/run.sh"]
+    volumes:
+      - ../out:/app/out
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GIT_COMMIT=${GIT_COMMIT:-N/A}
+
+  attack-06:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: docker-qsp:latest
+    working_dir: /app
+    entrypoint: ["bash", "-lc"]
+    command: ["bash attack_scenarios/attack_06_phase_confusion/run.sh"]
+    volumes:
+      - ../out:/app/out
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GIT_COMMIT=${GIT_COMMIT:-N/A}
+
   pytest:
     build:
       context: ..
@@ -133,12 +161,3 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - GIT_COMMIT=${GIT_COMMIT:-N/A}
-
-  attack-05:
-    image: docker-qsp:latest
-    working_dir: /app
-    environment:
-      - PYTHONUNBUFFERED=1
-      - PYTHONPATH=/app
-      - GIT_COMMIT=${GIT_COMMIT}
-    command: ["bash", "attack_scenarios/attack_05_key_schedule_confusion/run.sh"]

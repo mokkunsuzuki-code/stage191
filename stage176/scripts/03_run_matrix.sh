@@ -44,6 +44,7 @@ run_step "attack-02" bash attack_scenarios/attack_02_replay_ack/run.sh || FINAL_
 run_step "attack-03" bash attack_scenarios/attack_03_epoch_rollback/run.sh || FINAL_RC=1
 run_step "attack-04" bash attack_scenarios/attack_04_wrong_session_id/run.sh || FINAL_RC=1
 run_step "attack-05" bash attack_scenarios/attack_05_key_schedule_confusion/run.sh || FINAL_RC=1
+run_step "attack-06" bash attack_scenarios/attack_06_phase_confusion/run.sh || FINAL_RC=1
 
 run_step "pytest" run_pytest_soft || FINAL_RC=1
 run_step "summarize" bash scripts/05_summarize.sh || FINAL_RC=1
