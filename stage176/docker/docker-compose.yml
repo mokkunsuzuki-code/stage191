@@ -1,0 +1,144 @@
+# MIT License © 2025 Motohiro Suzuki
+services:
+  qsp:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: docker-qsp:latest
+    working_dir: /app
+    entrypoint: ["bash", "docker/entrypoint.sh"]
+    volumes:
+      - ../out:/app/out
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GIT_COMMIT=${GIT_COMMIT:-N/A}
+
+  demo:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: docker-qsp:latest
+    working_dir: /app
+    entrypoint: ["bash", "-lc"]
+    command: ["bash scripts/02_run_demo.sh"]
+    volumes:
+      - ../out:/app/out
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GIT_COMMIT=${GIT_COMMIT:-N/A}
+
+  attack-01:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: docker-qsp:latest
+    working_dir: /app
+    entrypoint: ["bash", "-lc"]
+    command: ["bash attack_scenarios/attack_01_tamper_sig/run.sh"]
+    volumes:
+      - ../out:/app/out
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GIT_COMMIT=${GIT_COMMIT:-N/A}
+
+  attack-02:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: docker-qsp:latest
+    working_dir: /app
+    entrypoint: ["bash", "-lc"]
+    command: ["bash attack_scenarios/attack_02_replay_ack/run.sh"]
+    volumes:
+      - ../out:/app/out
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GIT_COMMIT=${GIT_COMMIT:-N/A}
+
+  attack-03:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: docker-qsp:latest
+    working_dir: /app
+    entrypoint: ["bash", "-lc"]
+    command: ["bash attack_scenarios/attack_03_epoch_rollback/run.sh"]
+    volumes:
+      - ../out:/app/out
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GIT_COMMIT=${GIT_COMMIT:-N/A}
+
+  attack-04:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: docker-qsp:latest
+    working_dir: /app
+    entrypoint: ["bash", "-lc"]
+    command: ["bash attack_scenarios/attack_04_wrong_session_id/run.sh"]
+    volumes:
+      - ../out:/app/out
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GIT_COMMIT=${GIT_COMMIT:-N/A}
+
+  pytest:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: docker-qsp:latest
+    working_dir: /app
+    entrypoint: ["bash", "-lc"]
+    command:
+      - |
+        python -m pytest -q || {
+          rc=$$?
+          if [[ $$rc -eq 5 ]]; then
+            echo "[pytest] no tests collected -> treat as OK"
+            exit 0
+          fi
+          exit $$rc
+        }
+    volumes:
+      - ../out:/app/out
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GIT_COMMIT=${GIT_COMMIT:-N/A}
+
+  summarize:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: docker-qsp:latest
+    working_dir: /app
+    entrypoint: ["bash", "-lc"]
+    command: ["bash scripts/05_summarize.sh"]
+    volumes:
+      - ../out:/app/out
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GIT_COMMIT=${GIT_COMMIT:-N/A}
+
+  matrix:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: docker-qsp:latest
+    working_dir: /app
+    entrypoint: ["bash", "-lc"]
+    command: ["bash scripts/03_run_matrix.sh"]
+    volumes:
+      - ../out:/app/out
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GIT_COMMIT=${GIT_COMMIT:-N/A}
+
+  attack-05:
+    image: docker-qsp:latest
+    working_dir: /app
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - GIT_COMMIT=${GIT_COMMIT}
+    command: ["bash", "attack_scenarios/attack_05_key_schedule_confusion/run.sh"]
