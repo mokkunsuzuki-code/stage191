@@ -15,7 +15,7 @@ claims:
     file: model/qsp_state.spthy
     lemma: A1_handshake_gating
   implementation:
-    file: qsp/minicore.py
+    file: qsp/minicoreX.py
     anchor: MiniCore.accept_frame(); mismatch validation + gating
   tests:
     positive:
@@ -61,7 +61,7 @@ claims:
     file: model/qsp_state.spthy
     lemma: A3_fail_closed_on_mismatch
   implementation:
-    file: qsp/minicore.py
+    file: qsp/minicoreX.py
     anchor: MiniCore.accept_frame(); mismatch validation + gating
   tests:
     positive:
