@@ -1,21 +1,16 @@
 # MIT License © 2025 Motohiro Suzuki
 """
-policy/key_policy.py  (Stage166)
+policy.key_policy (Stage178 shim, compat++)
 
-KeyPolicy:
-- Decide whether to use QKD material (evaluate_qkd)
-- Decide whether to trigger rekey during a session (should_rekey)
-
-Design goals:
-- QKD can be UNAVAILABLE (outage/slow) -> protocol must continue (PQC-only)
-- Rekey trigger depends on time and/or bytes since last rekey
+Stage178 rekey_engine._get_policy(cfg) が KeyPolicy を生成する際、
+ステージ差で追加のキーワード引数を渡すことがある（例: qber_max）。
+壊れないように、互換受け口として **kwargs を許容**する。
 """
 
 from __future__ import annotations
-
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
+from typing import Optional, Any
 
 
 class QKDState(str, Enum):
@@ -23,106 +18,54 @@ class QKDState(str, Enum):
     UNAVAILABLE = "UNAVAILABLE"
 
 
-@dataclass(frozen=True)
-class QKDMetrics:
-    qber: Optional[float] = None
-    chsh: Optional[float] = None
-
-
-@dataclass(frozen=True)
-class QKDDecision:
-    allow_qkd: bool
-    reason: str
-
-
 @dataclass
+class QKDMetrics:
+    available: bool = False
+    reason: str = "QKD_UNAVAILABLE"
+    # optional fields (future)
+    qber: Optional[float] = None
+
+
 class KeyPolicy:
     """
-    Stage166 policy knobs
+    Minimal policy used by handshake/rekey paths.
 
-    Rekey triggers:
-      - rekey_max_seconds: trigger if elapsed time exceeds this (>0)
-      - rekey_max_bytes  : trigger if bytes since last rekey exceeds this (>0)
-
-    QKD gating:
-      - qber_max, chsh_min: quality thresholds
-      - budget_high/budget_low: remaining budget thresholds
+    Accepts both naming styles:
+      - rekey_seconds / rekey_bytes
+      - rekey_max_seconds / rekey_max_bytes
+    Also accepts extra stage-dependent kwargs like:
+      - qber_max
+      - ... future keys (ignored unless we decide to use them)
     """
 
-    rekey_max_seconds: int = 60
-    rekey_max_bytes: int = 1024 * 1024
-
-    qber_max: float = 0.05
-    chsh_min: float = 2.4
-
-    budget_high: int = 32
-    budget_low: int = 16
-
-    def should_rekey(self, *, elapsed_sec: float, bytes_since_rekey: int) -> bool:
-        """
-        Stage166: policy-driven rekey decision.
-
-        Returns True if:
-          - elapsed_sec >= rekey_max_seconds (when rekey_max_seconds > 0), OR
-          - bytes_since_rekey >= rekey_max_bytes (when rekey_max_bytes > 0)
-        """
-        try:
-            e = float(elapsed_sec)
-        except Exception:
-            e = 0.0
-
-        try:
-            b = int(bytes_since_rekey)
-        except Exception:
-            b = 0
-
-        if self.rekey_max_seconds and self.rekey_max_seconds > 0:
-            if e >= float(self.rekey_max_seconds):
-                return True
-
-        if self.rekey_max_bytes and self.rekey_max_bytes > 0:
-            if b >= int(self.rekey_max_bytes):
-                return True
-
-        return False
-
-    def evaluate_qkd(
+    def __init__(
         self,
-        *,
-        qkd_state: QKDState,
-        metrics: Optional[QKDMetrics],
-        remaining_budget: int,
-    ) -> QKDDecision:
-        """
-        Stage166: decide whether QKD bytes are permitted for this usage.
+        require_qkd: bool = False,
+        fail_closed: bool = True,
+        rekey_bytes: int = 0,
+        rekey_seconds: int = 0,
+        rekey_max_bytes: Optional[int] = None,
+        rekey_max_seconds: Optional[int] = None,
+        qber_max: Optional[float] = None,
+        **_extra: Any,
+    ) -> None:
+        if rekey_max_bytes is not None:
+            rekey_bytes = int(rekey_max_bytes)
+        if rekey_max_seconds is not None:
+            rekey_seconds = int(rekey_max_seconds)
 
-        Conservative rules:
-          - If QKD is UNAVAILABLE -> deny (PQC-only)
-          - If metrics provided:
-              - qber must be <= qber_max (when qber is not None)
-              - chsh must be >= chsh_min (when chsh is not None)
-          - If remaining_budget is too low -> deny
-        """
-        # Availability
-        if qkd_state != QKDState.AVAILABLE:
-            return QKDDecision(False, "QKD unavailable")
+        self.require_qkd = bool(require_qkd)
+        self.fail_closed = bool(fail_closed)
+        self.rekey_bytes = int(rekey_bytes)
+        self.rekey_seconds = int(rekey_seconds)
 
-        # Budget gating (simple, interpretable)
-        try:
-            rem = int(remaining_budget)
-        except Exception:
-            rem = 0
+        # optional guardrail (not enforced by shim yet)
+        self.qber_max = None if qber_max is None else float(qber_max)
 
-        if rem <= 0:
-            return QKDDecision(False, "QKD budget exhausted")
-        if rem < self.budget_low:
-            return QKDDecision(False, f"QKD budget low (<{self.budget_low})")
+    def qkd_state(self, metrics: Optional[QKDMetrics] = None) -> QKDState:
+        if metrics is None:
+            return QKDState.UNAVAILABLE
+        return QKDState.AVAILABLE if metrics.available else QKDState.UNAVAILABLE
 
-        # Quality gating
-        if metrics is not None:
-            if metrics.qber is not None and float(metrics.qber) > float(self.qber_max):
-                return QKDDecision(False, f"QKD qber too high (>{self.qber_max})")
-            if metrics.chsh is not None and float(metrics.chsh) < float(self.chsh_min):
-                return QKDDecision(False, f"QKD chsh too low (<{self.chsh_min})")
-
-        return QKDDecision(True, "QKD permitted")
+    def allow_pqc_only(self, metrics: Optional[QKDMetrics] = None) -> bool:
+        return not self.require_qkd

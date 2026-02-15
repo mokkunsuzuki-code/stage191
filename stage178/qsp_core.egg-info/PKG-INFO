@@ -1,0 +1,202 @@
+Metadata-Version: 2.4
+Name: qsp-core
+Version: 0.178.1
+Summary: QSP Core (Stage178 LTS) - executable attack-verified core
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+
+# QSP – Stage178  
+Claims ↔ Implementation Integrity + Attack Coverage (CI-enforced)
+
+MIT License © 2025 Motohiro Suzuki
+
+---
+
+## Overview
+
+Stage178 establishes **research-grade security integrity** for QSP.
+
+This stage is not about adding new cryptography.
+It is about making security guarantees **non-drifting, executable, and continuously enforced**.
+
+Stage178 consists of two inseparable parts:
+
+- **Stage178-A**: Claims ↔ Implementation Integrity  
+- **Stage178-B**: Attack Coverage Completion (CI-enforced)
+
+Together, they ensure:
+
+> *What QSP claims to protect is exactly what the code enforces —  
+> and every defined attack class is demonstrably rejected.*
+
+---
+
+## Stage178-A — Claims ↔ Implementation Integrity
+
+### Goal
+
+Prevent silent drift between:
+
+- 📜 Security claims
+- 🧠 Implementation
+- 🧪 Tests
+
+If any of these diverge, **CI must fail**.
+
+---
+
+### What Stage178-A Introduces
+
+#### 1. Security Claims Table
+
+All security properties are explicitly listed in:
+
+claims/claims.yml
+
+
+Each claim references:
+- the exact implementation file
+- the enforcing rule or logic
+- at least one test exercising the claim
+
+---
+
+#### 2. Minimal Contract Core (`qsp/minicore.py`)
+
+`minicore.py` is intentionally **small, strict, and auditable**.
+
+It is **not a production protocol**.  
+It is a **contract oracle** used by CI to enforce claims.
+
+It encodes rules such as:
+
+- Handshake must complete before any APP_DATA
+- Session ID mismatch → fail-closed
+- Epoch monotonicity (no rollback / jump)
+- Rekey only allowed for epoch + 1
+- Key material must evolve across epochs
+- Downgrade attempts must be rejected
+
+---
+
+#### 3. Claims Integrity Checker
+
+CI executes:
+
+```bash
+python tools/check_claims_integrity.py
+CI fails if:
+
+a claim references a non-existent file
+
+a test is missing
+
+an anchor or rule is not implemented
+
+This makes claim drift impossible without detection.
+
+Stage178-B — Attack Coverage (CI-enforced)
+Goal
+Be able to state — with evidence:
+
+“All defined attack classes are rejected by the implementation.”
+
+Attack Table
+All attack classes are explicitly listed in:
+
+attacks/attack_table.yml
+For each attack, CI requires:
+
+a pytest test
+
+a runnable scenario (runner.py)
+
+a one-command execution script (run.sh)
+
+Missing any of these → CI FAILS.
+
+Attacks Covered (A-01 … A-06)
+ID	Attack Class
+A-01	Epoch skip / jump
+A-02	Rekey race (double rekey)
+A-03	Wrong session_id injection
+A-04	APP_DATA before handshake
+A-05	Rekey reuse / replay
+A-06	Downgrade attack (mode pinning)
+Downgrade Detection (A-06)
+Stage178-B introduces mode pinning:
+
+Session mode is fixed at handshake
+
+Any attempt to change mode afterward
+→ fail-closed ("downgrade detected")
+
+This ensures downgrade resistance is enforced in code, not only documented.
+
+Continuous Enforcement via CI
+CI executes, in order:
+
+python tools/check_claims_integrity.py
+python tools/check_attack_coverage.py
+pytest -q
+This guarantees:
+
+Claims cannot exist without enforcement
+
+Attack coverage cannot be claimed without runnable proof
+
+Security regressions are caught immediately
+
+Verify Locally
+git clone https://github.com/mokkunsuzuki-code/stage178.git
+cd stage178
+
+python tools/check_claims_integrity.py
+python tools/check_attack_coverage.py
+pytest -q
+
+./attack_scenarios/attack_01_epoch_skip/run.sh
+./attack_scenarios/attack_02_rekey_race/run.sh
+./attack_scenarios/attack_03_wrong_session_id/run.sh
+./attack_scenarios/attack_04_appdata_before_handshake/run.sh
+./attack_scenarios/attack_05_rekey_reuse/run.sh
+./attack_scenarios/attack_06_downgrade/run.sh
+All commands must succeed.
+
+What Stage178 Is (and Is Not)
+✔ This stage is
+A CI-enforced security contract
+
+Proof that claims, code, and tests are synchronized
+
+A reusable pattern for protocol research and PoC review
+
+Suitable for research review and enterprise PoC discussion
+
+✘ This stage is not
+A performance benchmark
+
+A complete cryptographic implementation
+
+A claim of post-quantum completeness
+
+A replacement for formal verification
+
+Why This Matters
+Most protocol failures do not come from broken cryptography,
+but from assumptions drifting silently over time.
+
+Stage178 makes such drift structurally impossible.
+
+This stage forms the required foundation for:
+
+Stage179 — Formal verification (Tamarin / ProVerif) fully synchronized with claims
+
+External audits
+
+Enterprise PoCs
+
+Interoperability experiments
+
+License
+MIT License © 2025 Motohiro Suzuki
