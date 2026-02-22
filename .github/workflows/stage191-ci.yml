@@ -98,10 +98,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # NOTE: fetch_actions_results.py does NOT accept --out-dir (per usage)
           python tools/fetch_actions_results.py \
             --repo "${{ github.repository }}" \
-            --run-id "${{ github.run_id }}" \
-            --out-dir "out/ci"
+            --run-id "${{ github.run_id }}"
+
+          # Normalize: ensure out/ci/actions_jobs.json exists even if tool writes elsewhere
+          if [ -f out/ci/actions_jobs.json ]; then
+            echo "[OK] found out/ci/actions_jobs.json"
+          else
+            echo "[WARN] out/ci/actions_jobs.json not found; searching..."
+            FOUND="$(find . -maxdepth 4 -name actions_jobs.json -print -quit || true)"
+            if [ -z "$FOUND" ]; then
+              echo "[ERROR] actions_jobs.json not found anywhere"
+              exit 1
+            fi
+            echo "[OK] found: $FOUND"
+            cp -v "$FOUND" out/ci/actions_jobs.json
+          fi
 
           python - <<'PY'
           import json
