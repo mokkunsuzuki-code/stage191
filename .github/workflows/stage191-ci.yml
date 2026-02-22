@@ -13,79 +13,61 @@ jobs:
   sanity:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Sanity (limit scope)
         run: |
           python -V
-          # Limit compile scope to Stage191-critical dirs only
           python -m compileall -q tools claims
 
   interop_smoke:
     runs-on: ubuntu-latest
     needs: [sanity]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Interop smoke (stub)
-        run: |
+      - uses: actions/checkout@v4
+      - run: |
           mkdir -p out/evidence
-          echo "[OK] interop_smoke stub: job exists and ran" | tee out/evidence/interop_smoke.txt
+          echo "[OK] interop_smoke stub" > out/evidence/interop_smoke.txt
 
   tamarin:
     runs-on: ubuntu-latest
     needs: [sanity]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Tamarin (stub)
-        run: |
+      - uses: actions/checkout@v4
+      - run: |
           mkdir -p out/evidence
-          echo "[OK] tamarin stub: job exists and ran" | tee out/evidence/tamarin.txt
+          echo "[OK] tamarin stub" > out/evidence/tamarin.txt
 
   proverif:
     runs-on: ubuntu-latest
     needs: [sanity]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: ProVerif (stub)
-        run: |
+      - uses: actions/checkout@v4
+      - run: |
           mkdir -p out/evidence
-          echo "[OK] proverif stub: job exists and ran" | tee out/evidence/proverif.txt
+          echo "[OK] proverif stub" > out/evidence/proverif.txt
 
   no_secret_logging:
     runs-on: ubuntu-latest
     needs: [sanity]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: No secret logging (stub)
-        run: |
+      - uses: actions/checkout@v4
+      - run: |
           mkdir -p out/evidence
-          echo "[OK] no_secret_logging stub: job exists and ran" | tee out/evidence/no_secret_logging.txt
+          echo "[OK] no_secret_logging stub" > out/evidence/no_secret_logging.txt
 
   zeroize_rules:
     runs-on: ubuntu-latest
     needs: [sanity]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Zeroize rules (stub)
-        run: |
+      - uses: actions/checkout@v4
+      - run: |
           mkdir -p out/evidence
-          echo "[OK] zeroize_rules stub: job exists and ran" | tee out/evidence/zeroize_rules.txt
+          echo "[OK] zeroize_rules stub" > out/evidence/zeroize_rules.txt
 
   claim_gate:
     runs-on: ubuntu-latest
@@ -98,13 +80,15 @@ jobs:
       - zeroize_rules
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install requests
 
       - name: Prepare output dirs
         run: |
