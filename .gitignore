@@ -25,3 +25,7 @@ stage*/
 "ギットハブリカバリーコード/"
 !stage178/
 !stage178/**
+
+# local
+build/
+gate/
