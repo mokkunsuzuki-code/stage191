@@ -1,1 +1,49 @@
-（上のYAML全文）
+name: stage191-ci
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  claims_and_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python version
+        run: python --version
+
+      - name: Fetch THIS run -> build claim_matrix
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python tools/fetch_actions_results.py \
+            --repo mokkunsuzuki-code/stage191 \
+            --run-id "${{ github.run_id }}"
+
+          python tools/generate_claim_matrix.py
+
+      - name: Show claim_matrix
+        run: |
+          sed -n '1,200p' out/ci/claim_matrix.md
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage191-evidence
+          path: |
+            out/ci/actions_runs.json
+            out/ci/actions_jobs.json
+            out/ci/claim_matrix.md
+
+      - name: CI Gate
+        run: |
+          python tools/ci_gate.py \
+            --require-jobs-all \
+            --allow-in-progress-job "${{ github.job }}"
