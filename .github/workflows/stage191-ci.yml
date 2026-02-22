@@ -28,4 +28,13 @@ jobs:
 
       - name: Show claim_matrix
         run: |
-          sed -n '1,120p' out/ci/claim_matrix.md
+          sed -n '1,200p' out/ci/claim_matrix.md
+
+      - name: Upload evidence (claim_matrix + raw JSON)
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage191-evidence
+          path: |
+            out/ci/actions_runs.json
+            out/ci/actions_jobs.json
+            out/ci/claim_matrix.md
