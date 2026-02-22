@@ -33,3 +33,7 @@ gate/
 # local build outputs
 build/
 gate/
+
+# allow tracking stage191 (do not ignore)
+!stage191/
+!stage191/**
