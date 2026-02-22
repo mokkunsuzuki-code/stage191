@@ -1,0 +1,16 @@
+name: stage191-ci
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python version
+        run: python --version
+      - name: Repo listing
+        run: ls -la
