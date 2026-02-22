@@ -29,3 +29,7 @@ stage*/
 # local
 build/
 gate/
+
+# local build outputs
+build/
+gate/
