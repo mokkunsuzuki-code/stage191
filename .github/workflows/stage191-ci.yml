@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  claims_and_tests:
+  sanity:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,22 +18,43 @@ jobs:
       - name: Python version
         run: python --version
 
+      - name: Repo listing
+        run: |
+          pwd
+          ls -la
+          ls -la .github/workflows || true
+          ls -la tools || true
+          ls -la claims || true
+          ls -la out || true
+
+  claim_gate:
+    needs: [sanity]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps for claim tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+
       - name: Fetch THIS run -> build claim_matrix
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # A案の核心：この workflow 自身の run_id を証拠として固定化
           python tools/fetch_actions_results.py \
             --repo mokkunsuzuki-code/stage191 \
             --run-id "${{ github.run_id }}"
 
-          python tools/generate_claim_matrix.py
+          python tools/generate_claim_matrix.py \
+            --claims claims/claims.yaml \
+            --jobs out/ci/actions_jobs.json \
+            --out out/ci/claim_matrix.md
 
       - name: Show claim_matrix
         run: |
           sed -n '1,200p' out/ci/claim_matrix.md
 
-      # Gateより先に必ず証拠を保存（外部レビューで最重要）
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -44,9 +65,9 @@ jobs:
             out/ci/actions_jobs.json
             out/ci/claim_matrix.md
 
-      # Gateは最後（A案では in_progress を許容しないと原理的に落ちる）
-      - name: CI Gate
+      - name: CI Gate (Claim-driven)
         run: |
           python tools/ci_gate.py \
-            --require-jobs-all \
-            --allow-any-in-progress
+            --jobs out/ci/actions_jobs.json \
+            --claims claims/claims.yaml \
+            --require-claims-all
