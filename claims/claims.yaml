@@ -1,0 +1,8 @@
+claims:
+  A2:
+    title: "CI sanity is green (pipeline integrity baseline)"
+    required_jobs:
+      - sanity
+    evidence_paths:
+      - out/ci/actions_jobs.json
+      - out/ci/claim_matrix.md
