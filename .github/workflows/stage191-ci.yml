@@ -18,11 +18,12 @@ jobs:
       - name: Python version
         run: python --version
 
-      - name: Fetch latest completed Actions run -> build claim_matrix -> gate
+      - name: Fetch THIS run -> build claim_matrix -> gate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python tools/fetch_actions_results.py --repo mokkunsuzuki-code/stage191 --branch main --pick latest_completed
+          # A案の核心：この workflow 自身の run_id を証拠として固定化
+          python tools/fetch_actions_results.py --repo mokkunsuzuki-code/stage191 --run-id "${{ github.run_id }}"
           python tools/generate_claim_matrix.py
           python tools/ci_gate.py --require-run-success
 
