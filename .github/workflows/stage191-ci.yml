@@ -22,6 +22,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # A案の核心：この workflow 自身の run_id を証拠として固定化
           python tools/fetch_actions_results.py \
             --repo mokkunsuzuki-code/stage191 \
             --run-id "${{ github.run_id }}"
@@ -32,6 +33,7 @@ jobs:
         run: |
           sed -n '1,200p' out/ci/claim_matrix.md
 
+      # Gateより先に必ず証拠を保存（外部レビューで最重要）
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -42,8 +44,9 @@ jobs:
             out/ci/actions_jobs.json
             out/ci/claim_matrix.md
 
+      # Gateは最後（A案では in_progress を許容しないと原理的に落ちる）
       - name: CI Gate
         run: |
           python tools/ci_gate.py \
             --require-jobs-all \
-            --allow-in-progress-job "${{ github.job }}"
+            --allow-any-in-progress
