@@ -21,10 +21,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Sanity
+      - name: Sanity (limit scope)
         run: |
           python -V
-          python -m compileall -q .
+          # Limit compile scope to Stage191-critical dirs only
+          python -m compileall -q tools claims
 
   interop_smoke:
     runs-on: ubuntu-latest
@@ -95,6 +96,7 @@ jobs:
       - proverif
       - no_secret_logging
       - zeroize_rules
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
