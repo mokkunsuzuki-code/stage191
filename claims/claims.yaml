@@ -1,31 +1,58 @@
+# MIT License © 2025 Motohiro Suzuki
+# Stage194: Claim ↔ Lemma ↔ Attack (Job/Evidence) mapping
+
+lemmas:
+  L_replay_detection:
+    title: "Replay attack detection is enforced by CI"
+    required_jobs:
+      - attack_replay
+    evidence_paths:
+      - out/ci/actions_jobs.json
+      - out/ci/claim_status.md
+
+  L_downgrade_detection:
+    title: "Downgrade attack detection is enforced by CI"
+    required_jobs:
+      - attack_downgrade
+    evidence_paths:
+      - out/ci/actions_jobs.json
+      - out/ci/claim_status.md
+
+  L_interop_smoke:
+    title: "Interop smoke tests are green"
+    required_jobs:
+      - interop_smoke
+    evidence_paths:
+      - out/ci/actions_jobs.json
+
+  L_audit_suite:
+    title: "Audit suite (no secret logging, zeroize rules, formal checks) is green"
+    required_jobs:
+      - zeroize_rules
+      - no_secret_logging
+      - proverif
+      - tamarin
+    evidence_paths:
+      - out/ci/claim_status.md
+      - audit.log
+
 claims:
   A2:
-    title: Replay attack is detected / rejected
-    required_jobs:
-    - attack_replay
-    evidence_paths:
-    - out/ci/actions_jobs.json
-    - out/ci/claim_status.md
+    title: "Replay attack is detected / rejected"
+    required_lemmas:
+      - L_replay_detection
+
   A3:
-    title: Downgrade attack is detected / rejected
-    required_jobs:
-    - attack_downgrade
-    evidence_paths:
-    - out/ci/actions_jobs.json
-    - out/ci/claim_status.md
+    title: "Downgrade attack is detected / rejected"
+    required_lemmas:
+      - L_downgrade_detection
+
   A4:
-    title: Interop / compatibility checks are validated
-    required_jobs:
-    - interop_smoke
-    evidence_paths:
-    - out/ci/actions_jobs.json
+    title: "Interop / compatibility checks are validated"
+    required_lemmas:
+      - L_interop_smoke
+
   A5:
-    title: Audit / security checks are executed
-    required_jobs:
-    - zeroize_rules
-    - no_secret_logging
-    - proverif
-    - tamarin
-    evidence_paths:
-    - out/ci/claim_status.md
-    - audit.log
+    title: "Audit / security checks are executed"
+    required_lemmas:
+      - L_audit_suite
