@@ -1,34 +1,31 @@
-# MIT License © 2025 Motohiro Suzuki
-# Stage192: Claim ↔ Job ↔ Evidence mapping (authoritative input)
-
 claims:
   A2:
-    title: "Replay attack is detected / rejected"
+    title: Replay attack is detected / rejected
     required_jobs:
-      - replay
+    - attack_replay
     evidence_paths:
-      - out/ci/actions_jobs.json
-      - out/ci/claim_status.md
-
+    - out/ci/actions_jobs.json
+    - out/ci/claim_status.md
   A3:
-    title: "Downgrade attack is detected / rejected"
+    title: Downgrade attack is detected / rejected
     required_jobs:
-      - downgrade
+    - attack_downgrade
     evidence_paths:
-      - out/ci/actions_jobs.json
-      - out/ci/claim_status.md
-
+    - out/ci/actions_jobs.json
+    - out/ci/claim_status.md
   A4:
-    title: "Interop / compatibility checks are validated"
+    title: Interop / compatibility checks are validated
     required_jobs:
-      - interop
+    - interop_smoke
     evidence_paths:
-      - out/ci/actions_jobs.json
-
+    - out/ci/actions_jobs.json
   A5:
-    title: "Audit / security checks are executed"
+    title: Audit / security checks are executed
     required_jobs:
-      - audit
+    - zeroize_rules
+    - no_secret_logging
+    - proverif
+    - tamarin
     evidence_paths:
-      - out/ci/claim_status.md
-      - audit.log
+    - out/ci/claim_status.md
+    - audit.log

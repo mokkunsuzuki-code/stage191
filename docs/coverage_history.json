@@ -1,0 +1,16 @@
+{
+  "history": [
+    {
+      "ts": "2026-02-25T07:51:05+09:00",
+      "coverage_pct": 75,
+      "claims_covered": 3,
+      "claims_total": 4
+    },
+    {
+      "ts": "2026-02-25T07:52:51+09:00",
+      "coverage_pct": 100,
+      "claims_covered": 4,
+      "claims_total": 4
+    }
+  ]
+}

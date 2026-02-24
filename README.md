@@ -2,7 +2,7 @@
 
 ## Claim Coverage (auto)
 
-- **Coverage:** 75% (3/4)
+- **Coverage:** 100% (4/4)
 - **Matrix:** `docs/claim_coverage_matrix.md`
 
 <!-- END CLAIM COVERAGE MATRIX -->
