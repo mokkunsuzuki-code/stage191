@@ -3,11 +3,23 @@
 ## Claim Coverage (auto)
 
 - **Coverage:** 100% (4/4)
-- **Generated:** 2026-02-25T07:55:34+09:00 (JST)
+- **Generated:** 2026-02-25T07:59:34+09:00 (JST)
 - **Matrix:** `docs/claim_coverage_matrix.md`
 - **Lemma layer:** enabled
 
 <!-- END CLAIM COVERAGE MATRIX -->
+<!-- BEGIN COVERAGE HISTORY -->
+
+## Coverage History (auto)
+
+| Timestamp (JST) | Coverage | Covered/Total |
+|---|---:|---:|
+| 2026-02-25T07:52:51+09:00 | 100% | 4/4 |
+| 2026-02-25T07:51:05+09:00 | 75% | 3/4 |
+
+<!-- END COVERAGE HISTORY -->
+
+
 
 # QSP Stage191
 ## Quantum-Safe Protocol — Claim Enforcement Fixed Snapshot
