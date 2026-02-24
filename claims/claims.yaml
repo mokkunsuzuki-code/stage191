@@ -1,36 +1,34 @@
 # MIT License © 2025 Motohiro Suzuki
-version: 1
+# Stage192: Claim ↔ Job ↔ Evidence mapping (authoritative input)
 
 claims:
   A2:
-    title: "Replay & Downgrade resistance is continuously tested"
+    title: "Replay attack is detected / rejected"
     required_jobs:
-      - attack_replay
-      - attack_downgrade
+      - replay
     evidence_paths:
-      - out/reports/summary.md
+      - out/ci/actions_jobs.json
+      - out/ci/claim_status.md
 
   A3:
-    title: "Interop smoke succeeds (minimal integration sanity)"
+    title: "Downgrade attack is detected / rejected"
     required_jobs:
-      - interop_smoke
+      - downgrade
     evidence_paths:
-      - out/reports/interop_smoke.md
+      - out/ci/actions_jobs.json
+      - out/ci/claim_status.md
 
   A4:
-    title: "Formal model checks (Tamarin / ProVerif) are green"
+    title: "Interop / compatibility checks are validated"
     required_jobs:
-      - tamarin
-      - proverif
+      - interop
     evidence_paths:
-      - out/formal/tamarin/**
-      - out/formal/proverif/**
+      - out/ci/actions_jobs.json
 
   A5:
-    title: "No secret logging + zeroization rules enforced"
+    title: "Audit / security checks are executed"
     required_jobs:
-      - no_secret_logging
-      - zeroize_rules
+      - audit
     evidence_paths:
-      - out/reports/no_secret_logging.txt
-      - out/reports/zeroize_rules.txt
+      - out/ci/claim_status.md
+      - audit.log

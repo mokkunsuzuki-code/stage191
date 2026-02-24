@@ -1,0 +1,43 @@
+# MIT License © 2025 Motohiro Suzuki
+name: Stage192 Claim Coverage Matrix
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  claim-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+
+      - name: Build matrix
+        run: |
+          python tools/build_claim_matrix.py
+
+      - name: Check generated files are committed
+        run: |
+          git status --porcelain
+          git diff --exit-code docs/claim_coverage_matrix.md || (echo "[ERROR] docs/claim_coverage_matrix.md is out of date. Run tools/build_claim_matrix.py and commit." && exit 1)
+          git diff --exit-code README.md || (echo "[ERROR] README.md coverage block is out of date. Run tools/build_claim_matrix.py and commit." && exit 1)
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: claim-matrix
+          path: |
+            out/ci/claim_matrix.json
+            docs/claim_coverage_matrix.md

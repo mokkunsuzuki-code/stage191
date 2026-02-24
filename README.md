@@ -1,3 +1,12 @@
+<!-- BEGIN CLAIM COVERAGE MATRIX -->
+
+## Claim Coverage (auto)
+
+- **Coverage:** 75% (3/4)
+- **Matrix:** `docs/claim_coverage_matrix.md`
+
+<!-- END CLAIM COVERAGE MATRIX -->
+
 # QSP Stage191
 ## Quantum-Safe Protocol — Claim Enforcement Fixed Snapshot
 ## © 2025 Motohiro Suzuki
