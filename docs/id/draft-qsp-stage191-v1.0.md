@@ -116,4 +116,3 @@ It ensures normative guarantees are continuously validated.
 # 9. License
 
 MIT License © 2025 Motohiro Suzuki
-
