@@ -1,0 +1,54 @@
+# MIT License © 2025 Motohiro Suzuki
+
+name: Stage191 - Claim Status (dynamic)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  claim-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyyaml requests
+
+      # 重要: Stage191の既存ツールでActions結果を取る（あなたのStage191の核）
+      - name: Fetch GitHub Actions results (jobs)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python tools/fetch_actions_results.py
+
+      - name: Compute claim_status.json (fail-closed)
+        run: |
+          python tools/compute_claim_status.py
+
+      - name: Show summary in logs
+        run: |
+          echo "----- out/claim_status.md -----"
+          cat out/claim_status.md
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage191-claim-status
+          path: |
+            out/actions_runs.json
+            out/actions_jobs.json
+            out/claim_status.json
+            out/claim_status.md
