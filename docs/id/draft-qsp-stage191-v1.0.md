@@ -48,21 +48,34 @@ and fail-closed gating as specified in Section 8.
 
 # 5. Protocol Overview
 
-(Refer to Stage176–Stage191 implementation folders.)
+This document specifies the verification and enforcement structure
+for the Stage191 snapshot of QSP.
+
+The reference implementation and verification artifacts reside in
+the Stage191 repository, including prior stages imported for evidence
+generation and attack-driven CI.
 
 ---
 
 # 6. Threat Model
 
-QSP defends against replay, downgrade, session confusion,
-and rekey race conditions.
+The protocol assumes an active network adversary capable of:
+
+- replaying messages,
+- attempting downgrade of negotiated security parameters,
+- injecting messages from a different session (session confusion),
+- racing rekey procedures.
+
+The enforcement mechanism described in Section 8 ensures that these
+threats are continuously tested and regressions are detected.
 
 ---
 
 # 7. Non-Goals
 
-QSP does not attempt to replace formal proof systems.
-It provides operational assurance through continuous enforcement.
+QSP does not claim that CI-based verification replaces formal proofs.
+Instead, it provides operational assurance that the implementation
+continues to satisfy declared normative guarantees.
 
 ---
 
@@ -74,15 +87,23 @@ QSP defines security guarantees A2–A5 as normative claims.
 These claims are programmatically enforced via Continuous Integration (CI).
 
 Each claim is bound to required verification jobs and evidence artifacts.
+A claim is considered valid only if all associated jobs succeed and
+required evidence files are present.
 
 ## 8.2 Claim-to-Job Binding
+
+Each claim is mapped to one or more CI jobs.
+
+Example mapping:
 
 A2 → attack_replay  
 A3 → attack_downgrade  
 A4 → interop_smoke  
 A5 → rekey_race  
 
-A claim MUST fail if its required job fails.
+A claim MUST be marked FAILED if any required job fails.
+
+Static declaration of claim satisfaction is NOT permitted.
 
 ## 8.3 Evidence Requirements
 
@@ -92,19 +113,21 @@ Required evidence may include:
 - Summary reports  
 - CI JSON results  
 
-Absence of required evidence invalidates the claim.
+Absence of required evidence invalidates the claim even if CI reports success.
 
 ## 8.4 CI Gating Policy
 
 QSP enforces a fail-closed policy.
 
-If a job fails, is missing, or cannot be retrieved,
+If a required job is missing, fails, or cannot be retrieved,
 the claim MUST be treated as FAILED.
+
+Implementations MUST NOT downgrade enforcement to warning mode.
 
 ## 8.5 External Reproducibility
 
-All enforcement artifacts and mappings are reproducible
-by third parties via repository CI workflows.
+All enforcement artifacts and mappings are reproducible by third parties
+via repository CI workflows and published artifacts.
 
 ## 8.6 Security Considerations
 
