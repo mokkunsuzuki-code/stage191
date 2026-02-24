@@ -126,3 +126,17 @@ The above copyright notice and this permission notice shall be included
 in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+
+---
+
+## Internet-Draft (Fixed Specification)
+
+- **I-D v1.0:** `docs/id/draft-qsp-stage191-v1.0.md`
+- Stage191 fixes the Internet-Draft structure and integrates **Claim Enforcement** into the protocol specification.
+- Claims **A2–A5 are CI-bound and fail-closed** (job binding + evidence requirements).
+
+## Dynamic claim_status (CI)
+
+- The latest `claim_status.json` / `claim_status.md` is generated from real GitHub Actions job results.
+- See **GitHub → Actions → "Stage191 - Claim Status (dynamic)" → Artifacts → `stage191-claim-status`**.
+
