@@ -2,9 +2,10 @@
 """
 Fetch GitHub Actions run + jobs JSON and write to out/ci/.
 
-Auth priority:
-1) If GITHUB_TOKEN exists → REST API (Bearer)
-2) Else → use `gh api` (GitHub CLI)
+Supports:
+  --repo owner/repo
+  --run-id <id>        (CIから渡される)
+  --branch main        (run-id未指定時に使用)
 """
 
 from __future__ import annotations
@@ -14,12 +15,9 @@ import json
 import os
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
-import requests
-
-
-API = "https://api.github.com"
+API_PREFIX = "repos"
 OUTDIR = Path("out/ci")
 
 
@@ -27,89 +25,62 @@ def die(msg: str) -> None:
     raise SystemExit(msg if msg.endswith("\n") else msg + "\n")
 
 
-# --------------------------
-# AUTH
-# --------------------------
-
-def gh_headers() -> Dict[str, str]:
-    tok = os.environ.get("GITHUB_TOKEN")
-    if not tok:
-        return {}
-    return {
-        "Authorization": f"Bearer {tok}",
-        "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-    }
-
-
-def gh_get(url: str, params: Optional[Dict[str, Any]] = None) -> Any:
-    headers = gh_headers()
-
-    # ---- Mode 1: REST API ----
-    if headers:
-        r = requests.get(url, headers=headers, params=params, timeout=30)
-        if r.status_code >= 400:
-            die(f"[FAIL] GET {url} failed: {r.status_code} {r.text}")
-        return r.json()
-
-    # ---- Mode 2: gh CLI fallback ----
-    path = url.replace(API, "")
+def gh_api(path: str) -> Any:
+    """Use gh CLI (assumes gh auth login済み)"""
     cmd = ["gh", "api", path]
-    if params:
-        for k, v in params.items():
-            cmd.extend(["-f", f"{k}={v}"])
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    if r.returncode != 0:
+        die(f"[FAIL] gh api failed: {r.stderr}")
+    return json.loads(r.stdout)
 
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        die(f"[FAIL] gh api failed: {result.stderr}")
-
-    return json.loads(result.stdout)
-
-
-# --------------------------
-# CORE
-# --------------------------
 
 def write_json(path: Path, data: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False))
 
 
-def pick_run(repo: str, branch: str) -> Dict[str, Any]:
-    url = f"{API}/repos/{repo}/actions/runs"
-    data = gh_get(url, {"branch": branch, "per_page": 20})
-    runs = data.get("workflow_runs", [])
-    if not runs:
-        die("[FAIL] no runs found")
-    for run in runs:
-        if run.get("status") == "completed":
-            return run
-    return runs[0]
-
-
-def fetch_jobs(repo: str, run_id: int) -> Dict[str, Any]:
-    url = f"{API}/repos/{repo}/actions/runs/{run_id}/jobs"
-    return gh_get(url, {"per_page": 100})
-
-
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--repo", required=True)
+    ap.add_argument("--run-id")
     ap.add_argument("--branch", default="main")
     args = ap.parse_args()
 
-    run = pick_run(args.repo, args.branch)
-    run_id = run["id"]
+    repo = args.repo
 
-    runs_out = OUTDIR / "actions_runs.json"
-    write_json(runs_out, {"repo": args.repo, "chosen": run})
+    # -----------------------------
+    # run_id 決定
+    # -----------------------------
+    if args.run_id:
+        run_id = args.run_id
+        run_data = gh_api(f"{API_PREFIX}/{repo}/actions/runs/{run_id}")
+    else:
+        data = gh_api(f"{API_PREFIX}/{repo}/actions/runs?per_page=1")
+        runs = data.get("workflow_runs", [])
+        if not runs:
+            die("[FAIL] no runs found")
+        run_data = runs[0]
+        run_id = run_data["id"]
 
-    jobs_data = fetch_jobs(args.repo, run_id)
-    jobs_out = OUTDIR / "actions_jobs.json"
-    write_json(jobs_out, {"repo": args.repo, "run_id": run_id, **jobs_data})
+    # 保存（run情報）
+    write_json(OUTDIR / "actions_runs.json", {
+        "repo": repo,
+        "chosen": run_data
+    })
 
-    print(f"[OK] wrote: {runs_out}")
-    print(f"[OK] wrote: {jobs_out}")
+    # -----------------------------
+    # jobs 取得
+    # -----------------------------
+    jobs_data = gh_api(f"{API_PREFIX}/{repo}/actions/runs/{run_id}/jobs?per_page=100")
+
+    write_json(OUTDIR / "actions_jobs.json", {
+        "repo": repo,
+        "run_id": run_id,
+        **jobs_data
+    })
+
+    print(f"[OK] wrote: out/ci/actions_runs.json")
+    print(f"[OK] wrote: out/ci/actions_jobs.json")
     print(f"[OK] chosen run: {run_id}")
 
 
