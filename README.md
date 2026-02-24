@@ -3,7 +3,7 @@
 ## Claim Coverage (auto)
 
 - **Coverage:** 100% (4/4)
-- **Generated:** 2026-02-25T07:59:34+09:00 (JST)
+- **Generated:** 2026-02-25T08:01:42+09:00 (JST)
 - **Matrix:** `docs/claim_coverage_matrix.md`
 - **Lemma layer:** enabled
 

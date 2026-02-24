@@ -27,12 +27,17 @@ jobs:
       - name: Build matrix
         run: |
           python tools/build_claim_matrix.py
+          python tools/update_coverage_history.py
+          python tools/update_readme_history_block.py
 
       - name: Check generated files are committed
         run: |
           git status --porcelain
           git diff --exit-code docs/claim_coverage_matrix.md || (echo "[ERROR] docs/claim_coverage_matrix.md is out of date. Run tools/build_claim_matrix.py and commit." && exit 1)
-          git diff --exit-code README.md || (echo "[ERROR] README.md coverage block is out of date. Run tools/build_claim_matrix.py and commit." && exit 1)
+          git diff --exit-code README.md || (echo "[ERROR] README.md is out of date. Run tools/build_claim_matrix.py + tools/update_coverage_history.py + tools/update_readme_history_block.py and commit." && exit 1)
+          git diff --exit-code docs/coverage_history.json || (echo "[ERROR] docs/coverage_history.json is out of date. Run tools/update_coverage_history.py and commit." && exit 1)
+          git diff --exit-code docs/coverage_history.md || (echo "[ERROR] docs/coverage_history.md is out of date. Run tools/update_coverage_history.py and commit." && exit 1)
+          git diff --exit-code docs/claim_coverage_matrix.md || (echo "[ERROR] docs/claim_coverage_matrix.md is out of date. Run tools/build_claim_matrix.py and commit." && exit 1) || (echo "[ERROR] README.md coverage block is out of date. Run tools/build_claim_matrix.py and commit." && exit 1)
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
